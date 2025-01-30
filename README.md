@@ -1,5 +1,36 @@
 # Votação
 
+## Índice
+
+- [Enunciado do desafio](#enunciado-do-desafio)
+  - [Objetivo](#objetivo)
+  - [Como proceder](#como-proceder)
+    - [Tarefas bônus](#tarefas-bônus)
+    - [Tarefa Bônus 1 - Integração com sistemas externos](#tarefa-bônus-1---integração-com-sistemas-externos)
+    - [Tarefa Bônus 2 - Performance](#tarefa-bônus-2---performance)
+    - [Tarefa Bônus 3 - Versionamento da API](#tarefa-bônus-3---versionamento-da-api)
+    - [O que será analisado](#o-que-será-analisado)
+    - [Dicas](#dicas)
+    - [Anexo 1](#anexo-1)
+      - [Introdução](#introdução)
+      - [Tipo de tela – FORMULARIO](#tipo-de-tela--formulario)
+      - [Tipo de tela – SELECAO](#tipo-de-tela--selecao)
+- [desafio-votação](#desafio-votacao)
+  - [Requisitos de funcionamento da API](#requisitos)
+  - [Endpoints da API](#endpoints-da-api)
+    - [POST /v1/pautas](#post-v1pautas)
+    - [GET /v1/pautas/buscar/{id}](#get-v1pautasbuscarid)
+    - [GET /v1/listarpaginado](#get-v1listarpaginado)
+    - [DELETE /v1/pautas/deletar/{id}](#delete-v1pautasdeletarid)
+    - [POST /v1/sessao/abrir](#post-v1sessaoabrir)
+    - [POST /v1/sessao/reabrir](#post-v1sessaoreabrir)
+    - [POST /v1/sessao/votar](#post-v1sessaovotar)
+    - [GET /v1/sessao/voto/{idVoto}](#get-v1sessaovotoidvoto)
+    - [GET /v1/sessao/voto/{idPauta}/{cpfAssociado}](#get-v1sessaovotoidpautacpfassociado)
+    - [POST /v1/sessao/encerrar/{idPauta}](#post-v1sessaoencerraridpauta)
+  - [Observações](#observações)
+
+
 ## Objetivo
 
 No cooperativismo, cada associado possui um voto e as decisões são tomadas em assembleias, por votação. Imagine que você deve criar uma solução para dispositivos móveis para gerenciar e participar dessas sessões de votação.
@@ -115,3 +146,220 @@ A tela do tipo SELECAO exibe uma lista de opções para que o usuário.
 O aplicativo envia uma requisição POST para a url informada e com o body definido pelo objeto dentro de cada item da lista de seleção, quando o mesmo é acionado, semelhando ao funcionamento dos botões da tela FORMULARIO.
 
 # desafio-votacao
+
+## Requisitos
+
+### Variáveis de ambiente
+
+- MONGODB_URI: URI de conexão com o banco de dados MongoDB
+
+## Endpoints da API
+
+### POST /v1/pautas
+- Cria uma nova pauta
+- Body:
+  ```json
+  {
+    "titulo": "string",
+    "descricao": "string"
+  }
+  ```
+- Response:
+  ```json
+  {
+    "id": "string",
+    "titulo": "string",
+    "descricao": "string",
+    "sessao": {
+      "id": "string",
+      "inicio": "string",
+      "fim": "string"
+    },
+  "aprovada" : "boolean",
+  "votosSim": "number",
+  "votosNao": "number",
+  "dataApuracao": "string"
+  }
+  ```
+
+### GET /v1/pautas/buscar/{id}
+- Busca uma pauta pelo id
+- Response:
+  ```json
+  {
+    "id": "string",
+    "titulo": "string",
+    "descricao": "string",
+    "sessao": {
+      "id": "string",
+      "inicio": "string",
+      "fim": "string"
+    },
+  "aprovada" : "boolean",
+  "votosSim": "number",
+  "votosNao": "number",
+  "dataApuracao": "string"
+  }
+  ```
+
+### GET /v1/listarpaginado
+- Lista todas as pautas cadastradas
+  - Query Params:
+    - page: número da página (opcional)
+    - size: quantidade de itens por página (opcional)
+- Response:
+  ```json
+  [
+    {
+      "id": "string",
+      "titulo": "string",
+      "descricao": "string",
+      "sessao": {
+        "id": "string",
+        "inicio": "string",
+        "fim": "string"
+      },
+    "aprovada" : "boolean",
+    "votosSim": "number",
+    "votosNao": "number",
+    "dataApuracao": "string"
+    }
+  ]
+  ```
+
+### DELETE /v1/pautas/deletar/{id}
+  - Deleta uma pauta pelo id
+  - Response:
+    ```
+    204 No Content
+    ```
+
+### POST /v1/sessao/abrir
+- Abre uma sessão de votação em uma pauta
+  - Body:
+    ```json
+    {
+      "idPauta": "string",
+      "duracao": 0, 
+      "unidade": "string (MINUTES/HOURS/DAYS)"
+    }
+    ```
+    _'duracao' e 'unidade' opcionais. Default: 1 e 'MINUTES', respectivamente._ 
+
+- Response:
+  ```json
+  {
+      "id": "string",
+      "titulo": "string",
+      "descricao": "string",
+      "sessao": {
+        "id": "string",
+        "inicio": "string",
+        "fim": "string"
+      },
+    "aprovada" : "boolean",
+    "votosSim": "number",
+    "votosNao": "number",
+    "dataApuracao": "string"
+    }
+  ```
+
+### POST /v1/sessao/reabrir
+- Reabre uma sessão de votação em uma pauta (apenas se já tiver sido aberta)
+  - Body:
+    ```json
+    {
+      "idPauta": "string",
+      "duracao": 0, 
+      "unidade": "string (MINUTES/HOURS/DAYS)"
+    }
+    ```
+    _'duracao' e 'unidade' opcionais. Default: 1 e 'MINUTES', respectivamente._
+- Response:
+  ```json
+  {
+      "id": "string",
+      "titulo": "string",
+      "descricao": "string",
+      "sessao": {
+        "id": "string",
+        "inicio": "string",
+        "fim": "string"
+      },
+    "aprovada" : "boolean",
+    "votosSim": "number",
+    "votosNao": "number",
+    "dataApuracao": "string"
+    }
+  ```
+  
+### POST /v1/sessao/votar 
+- Submete um voto
+- Body:
+  ```json
+  {
+    "idPauta": "string",
+    "cpfAssociado": "string",
+    "opcao": "string (Sim/Não)"
+  }
+  ```
+  
+- Response:
+  ```json
+  {
+    	"timestamp": "string",
+	    "message": "string",
+	     "details": "string"
+    }
+  ```
+  
+### GET /v1/sessao/voto/{idVoto}
+- Busca um voto pelo id
+- Response:
+  ```json
+  {
+    "id": "string",
+    "associadoCPF": "string",
+    "pautaId": "string",
+    "dataHora": "string",
+    "opcao": "string (Sim/Não)"
+  }
+  ```
+  
+### GET /v1/sessao/voto/{idPauta}/{cpfAssociado}
+- Busca um voto pelo id da pauta e cpf do associado 
+- Response:
+  ```json
+  {
+    "id": "string",
+    "associadoCPF": "string (incluir os pontos e traços)",
+    "pautaId": "string",
+    "dataHora": "string",
+    "opcao": "string (Sim/Não)"
+  }
+  ```
+  
+### POST /v1/sessao/encerrar/{idPauta}
+- Encerra uma sessão de votação em uma pauta
+- Response:
+```
+200 OK
+```
+
+
+
+## Observações
+
+HORÁRIO: O sistema utilizará o horário local do servidor em que está hospedado. Como 
+não recebe horário do cliente, apenas o tempo de duração da votação, o sistema
+considera que o horário de início da votação é o horário atual do servidor. A boa prática 
+recomenda que o servidor utilize o fuso UTC, mas para simplificar o desafio, foi
+utilizado o horário local do servidor.
+
+COMMITS: Os commits não foram feitos paulatinamente, devido ao fato de este projeto
+ter sido escrito em pouco tempo.
+
+TESTES: A API foi testada utilizando testes de integração via postman. [Relatório](https://desafio-votacaoteste.netlify.app/desafio-votacao-2025-01-30-03-08-18-337-0) 
+
+
+
