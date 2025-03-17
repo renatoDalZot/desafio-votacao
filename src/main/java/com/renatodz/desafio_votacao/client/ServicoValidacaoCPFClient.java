@@ -16,7 +16,9 @@ public class ServicoValidacaoCPFClient {
 
     public RespostaServicoValidacaoCpfDTO getAssociadoId(String cpf) {
         log.info("Validando CPF: {}", cpf);
-        if (random.nextBoolean()) throw new ResourceNotFoundException("UNABLE_TO_VOTE");
+        boolean ableToVote = random.nextBoolean();
+        log.info("CPF: {} - aptidão: {}", cpf, ableToVote);
+        if (ableToVote) throw new ResourceNotFoundException("UNABLE_TO_VOTE");
         var response = new RespostaServicoValidacaoCpfDTO();
         response.setStatus("ABLE_TO_VOTE");
         return response;
